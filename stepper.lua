@@ -38,7 +38,8 @@ function pins_enable()
 end
 
 function pins_disable()
-  for i = 1, 4, 1 do
+--  for i = 1, 4, 1 do -- no power, all pins
+  for i = 2, 4, 1 do -- no power, all pins except one (to keep it in place)
     gpio.mode(stepper_pins[i],gpio.INPUT)
   end
 end

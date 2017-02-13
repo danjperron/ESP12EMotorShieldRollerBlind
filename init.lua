@@ -1,6 +1,6 @@
 -- file : init.lua
 
-tot_steps = 0 -- total steps up/down
+tot_steps = 4000 -- total steps up/down
 cur_step = 0
 FWD=-1
 REV=1

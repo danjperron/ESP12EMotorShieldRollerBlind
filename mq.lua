@@ -33,7 +33,7 @@ local function mqtt_start()
             rollerblind.down()
           end
           if (value > 0 and value < 100) then
-            percent_go_to(value,2)
+            percent_go_to(value,config.step_ms)
           end
         end      
       end
