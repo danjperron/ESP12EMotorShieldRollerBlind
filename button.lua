@@ -3,8 +3,9 @@
 do
   -- use pin 1 as the input pulse width counter
   local pin=5
-  local debounce = 150 --ms
-  local longpress = 2000 --ms
+  local debounce = 50 --ms
+  local longpress = 3000 --ms
+  local verylongpress = 10000 --ms
   local pulse1, pulse2, du, now, trig = 1, 0, 0, tmr.now, gpio.trig
   local prev_int_time, int_time, up_time = 0
   local cal_steps = 100000
@@ -12,7 +13,7 @@ do
   local cal_steps_up = 0
   local cal_state = 0 -- 0 = not calibration, 1 = calibrating down, 2 = calibrating up
   state = 0 -- state: 0 = up, 1 = transition, 2 = down
-  gpio.mode(pin,gpio.INT)
+  gpio.mode(pin,gpio.INT,pullup)
   
   local function pin4cb(level)
     int_time = now() / 1000
@@ -20,6 +21,10 @@ do
       if (level == 0) then
         up_time = int_time
       else
+        if((int_time - up_time) > verylongpress) then
+          up_time=int_time
+          return
+        end
         if((int_time - up_time) > longpress) then
           print("calibrating")
           cal_state = 1

@@ -3,26 +3,26 @@
 -- simple stepper driver for controlling a stepper motor with a
 -- l293d driver
 -- nodemcu pins:  0  5  6  7
-stepper_pins = {1,3,2,4} -- (A-)blue, (A+)pink, (B-)yellow, (B+)orange
---stepper_pins = {1,2,3,4}
--- half or full stepping
+stepper_pins = {1,2,3,4} 
+
+-- stepper connection 
+-- (A-)blue, (A+)yellow, (B-) pink, (B+)orange
+
+
+-- new state because shield use
+-- D1 for ENABLE A
+-- D2 FOR ENABLE B
+-- D3 FOR A DIRECTION 1=> A+=1 A-=0  0=> A+=0 A-=1
+-- D4 FOR B DIRECTION 1=> B+=1 B-=0  0=> B+=0 B-=1
+-- Then D1 AND D2 always on
 step_states4 = {
- {1,0,0,1},
- {1,1,0,0},
- {0,1,1,0},
- {0,0,1,1}
+ {1,1,0,1},
+ {1,1,1,1},
+ {1,1,1,0},
+ {1,1,0,0}
 }
-step_states8 = {
- {1,0,0,0},
- {1,1,0,0},
- {0,1,0,0},
- {0,1,1,0},
- {0,0,1,0},
- {0,0,1,1},
- {0,0,0,1},
- {1,0,0,1},
-}
-step_states = step_states4 -- choose stepping mode
+
+step_states = step_states4
 step_numstates = 4 -- change to match number of rows in step_states
 step_delay = 10 -- choose speed
 step_state = 0 -- updated by step_take-function
@@ -35,20 +35,31 @@ function pins_enable()
   for i = 1, 4, 1 do
     gpio.mode(stepper_pins[i],gpio.OUTPUT)
   end
+  gpio.write(stepper_pins[1],1)
+  gpio.write(stepper_pins[2],1)
+
 end
 
 function pins_disable()
 --  for i = 1, 4, 1 do -- no power, all pins
-  for i = 2, 4, 1 do -- no power, all pins except one (to keep it in place)
-    gpio.mode(stepper_pins[i],gpio.INPUT)
-  end
+--for i = 1, 4, 1 do -- no power, all pins except one (to keep it in place)
+--  gpio.mode(stepper_pins[i],gpio.INPUT)
+    gpio.write(stepper_pins[1],0)
+    gpio.write(stepper_pins[2],0)
+--end
 end
+
 -- turn off all pins to let motor rest
 function step_stopstate() 
-  for i = 1, 4, 1 do
-    gpio.write(stepper_pins[i], 0)
-  end
+--for i = 1, 4, 1 do
+--  gpio.write(stepper_pins[i], 0)
+  gpio.write(stepper_pins[1],0)
+  gpio.write(stepper_pins[2],0)
+--end
 end
+
+
+
 
 -- make stepper take one step
 function step_take()
@@ -62,8 +73,8 @@ function step_take()
   end
   -- write the current state to the pins
   pins_enable()
-  for i = 1, 4, 1 do
-    gpio.write(stepper_pins[i], step_states[step_state][i])
+  for i = 3, 4, 1 do
+  gpio.write(stepper_pins[i], step_states[step_state][i])
   end
   -- might take another step after step_delay
   step_stepsleft = step_stepsleft-1
