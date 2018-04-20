@@ -2,7 +2,7 @@
 
    program:  Esp12E_motorShield
    Daniel Perron (c) April,2018
-   version 1.0
+   version 1.01
 
 
    // motor shield connection are different from the reference
@@ -46,9 +46,11 @@
 //===== Wifi definition 
 
 
-const char* ssid     = "myssid";
-const char* password = "mypassword";
+const char* ssid     = "mySSID";
+const char* password = "myPASSWORD";
 const char* mqtt_server = "10.11.12.192";
+const char* mqtt_user = "";
+const char* mqtt_password = "";
 
 
 //===== MQTT definition
@@ -482,6 +484,12 @@ void callback(char* topic, byte* payload, unsigned int length) {
      {
        stepTarget= ltemp * config.totalStep /100;
        Serial.printf("Target step set to %d\r\n",stepTarget);
+       // ok are we going up or down
+       noInterrupts();
+       ltemp = config.currentStep;
+       interrupts();
+       buttonUpDown = stepTarget < ltemp;
+       
      }
     return;
   }
@@ -489,6 +497,11 @@ void callback(char* topic, byte* payload, unsigned int length) {
   {
     stepTarget=message.toInt();
     Serial.printf("Target step set to %d\r\n",stepTarget);
+    // ok are we going up or down
+    noInterrupts();
+    ltemp = config.currentStep;
+    interrupts();
+    buttonUpDown = stepTarget < ltemp;
      return;
   }
 
@@ -544,7 +557,7 @@ void reconnect() {
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Attempt to connect
-    if (client.connect(clientID)) {
+    if (client.connect(clientID,mqtt_user,mqtt_password)) {
       Serial.println("connected");
       // Once connected, publish an announcement...
       publishStatus();
