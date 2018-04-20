@@ -80,7 +80,7 @@ const char* headerTopic="blind";
 
        blind/1/set/home              set the current position the be the open position.
 
-       blind/1/get/step              Ask then system to publish blind position in percent. Message value could be anything.
+       blind/1/get/blind             Ask then system to publish blind position in percent. Message value could be anything.
 
        blind/1/get/step              Ask then system to publish step position. Message value could be anything.
 
