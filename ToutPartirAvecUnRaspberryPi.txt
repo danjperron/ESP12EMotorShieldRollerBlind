@@ -1,0 +1,166 @@
+Blind Setup
+
+1- installez midnight commander
+
+sudo apt-get update
+sudo apt-get install mc
+
+2- suivre la page web
+http://www.instructables.com/id/Motorized-WiFi-IKEA-Roller-Blind/
+
+   A- MQTT.
+     sudo apt-get install mosquitto
+     sudo apt-get install mosquitto-clients
+
+   B- Build  lua firmware
+         https://nodemcu-build.com/
+
+   C- Download flash tool (esptool)  **** Bad link
+       https://github.com/espressif/esptool
+
+       cd
+       git clone  https://github.com/espressif/esptool
+       cd esptool
+
+    D- Copiez firmware dans esptool
+
+        
+    E- Créez les scripts pour effacer et programmer la puce esp8266 nodemcu  
+   
+	nano erase.sh
+
+		#!/bin/bash
+		python esptool.py --port $1 erase_flash
+
+	chmod +x erase.sh
+
+
+
+	nano flash.sh
+
+		#!/bin/bash
+		Firmware=./nodemcu-master-10-modules-2018-04-10-01-05-37-integer.bin
+		python esptool.py  --port $1 write_flash -fm dio 0x00000 $Firmware
+   
+	chmod +x flash.sh
+	P.S. changez le ligne Firmware pour votre firmware
+
+
+   F- Branchez La puce au port USB no shield!
+       
+   G- Trouvez le nom de la device.
+        ls -l /dev/tty{U,A}*
+
+        Normalement c'est /dev/ttyUSB0
+
+    H- Effacez la puce esp8266
+
+        Peser sur reset et Flash. relâcher reset et ensuite Flash.
+
+         cd ~/esptool
+         ./erase.sh /dev/ttyUSB0
+
+     I- Programmer la puce
+         ./flash.sh /dev/ttyUSB0
+
+
+3-  Téléchargez le code pour le roller blind
+        
+        git clone https://bitbucket.org/ehsmaes/motor_rollerblind    ceci est la version de l'auteur
+        utilisez plutot la mienne que vous avez sans doute déja chargé
+
+4 - Téléchargez l'utilité ESPlorer
+     
+     le site  https://esp8266.ru/esplorer/
+    
+
+     cd
+     unzip /Downloads/ESPlorer.zip
+
+
+5- Créez un short cut pour ESPlorer
+
+	cd ESPlorer
+
+	nano ESPlorer
+		
+		#!/bin/bash
+		cd /home/pi/ESPlorer
+		java -jar "ESPlorer.jar"
+
+	chmod +x ESPlorer
+
+	sudo ln -s /home/pi/ESPlorer/ESPlorer /usr/local/bin/ESPlorer
+
+
+6- Démarrez ESPlorer
+		ESPlorer
+
+7- Vérifiez si le nodemcu connecte.
+    -sync pour savoir quel port usb
+    - choisir 115200 baud
+    - click open
+    - reset nodemcu (appuyez sur le reset du nodemcu)
+
+
+
+8- Ouvrez et transférez tout les fichiers lua  avec le bouton upload
+
+9- ouvrez le fichier config.lua et ajuster le wifi et MQTT
+
+
+10- Faites un calibration en tenant le bouton plus de 5 secondes. 
+    Il faut appuyer de nouveau lorsque le rideau est au plus bas et de nouveau lorsque le bouton est au plus haut.
+
+P.S. Ma version utilise la bonne connection des fils pour le stepper.
+     Regardez dans mon code source pour les couleurs.
+     Si le moteur tourne du mauvais sans  changer les fils entre A+ et A-
+ 
+ ********** FIN de la version LUA ******
+
+ ********** version ARDUINO  ***********
+  
+1- Téléchargez la dernière version pour arm sous  www.arduino.cc
+   P.S. ne pas installer la version par défaut. Elle est trop vieille.
+
+2- Créez un répertoire 
+   sudo mkdir /root/.local/share/applications
+
+3- Décompressez et installez le GUI
+
+
+	cd
+	tar -xf Downloads/arduino-1.8.5-linux.tar.xz
+	cd arduino-1.8.5
+
+	sudo ./install.sh
+
+4- Démarrez arduino
+      
+      Ajouter dans préférence
+
+      http://arduino.esp8266.com/stable/package_esp8266com_index.json
+
+5- Dans gestionnaire de carte ajoutez esp8266
+
+6- Changer le type de carte pour nodemcu 1.0
+
+7- Le port pour /dev/ttyUSB0 ou 1 ou2 ...
+
+8- Dans la gestion de la bibliothèque ajoutez PubSubClient
+
+9- Ouvrez le fichier Esp12E_motorShield.ino
+
+10-Changer la configuration pour le MQTT et le wifi (ESSID et MQTT settings)
+
+11-Compilez et téléchargez.
+
+L'action du bouton est différente.  pesez plus de 5 secondes et moins de 10 pour tomber en calibration.
+Une pression momentanée va monter, arrêter ou descendre le rideau. Il y a le mode arrêt qui a été ajouté.
+
+********* DEBUG **********
+
+
+- utilisez piscope avec les gpios du Raspberry PI pour vérifier l'état des sorties.
+- utilisez la commande  mosquitto_sub -t "#" -v    pour voir tout ce qui ce passe avec le broker mosquitto
+
