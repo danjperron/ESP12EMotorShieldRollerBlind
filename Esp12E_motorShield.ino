@@ -157,7 +157,7 @@ uint8_t calib_state;
 
 #define DEBOUNCE_TIME      50
 #define CALIB_TIME         3000
-#define VERY_LONG_TIME     5000
+#define VERY_LONG_TIME     10000
 
 
 
