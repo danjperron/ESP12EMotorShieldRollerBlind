@@ -118,8 +118,9 @@ long stepRefresh;      // this is the step position of the blind send by mqtt it
 
 // this is the hardware timer interval 10000 egual 2 ms
 #define STEPPER_INTERVAL_2MS 10000 
+#define STEPPER_INTERVAL_3MS 15000 
 
-#define STEPPER_INTERVAL STEPPER_INTERVAL_2MS
+#define STEPPER_INTERVAL STEPPER_INTERVAL_3MS
 
 //====== GPIO DEFINITION
 
@@ -413,7 +414,7 @@ void   publishStatus()
       interrupts();
       ltemp = (stepRefresh *100) / config.totalStep;
       ltoa(ltemp,buffer,10);
-      client.publish(buildTopicName("status/blind").c_str(),buffer);
+      client.publish(buildTopicName("status/blind").c_str(),buffer,true);
       Serial.printf("Blind => position: %d step(s) %d%%\r\n",stepRefresh,ltemp);
     }
 }
